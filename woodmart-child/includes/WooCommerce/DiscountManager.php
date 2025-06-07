@@ -180,29 +180,55 @@ class DiscountManager {
         $subtotal_after_passive_bonuses = max(0, $subtotal_after_passive_bonuses);
 
 		if ( $active_rpg_item_coupon && is_array( $active_rpg_item_coupon ) && isset( $active_rpg_item_coupon['value'] ) && $subtotal_after_passive_bonuses > 0 ) {
-            $coupon_data = $active_rpg_item_coupon; 
+            $coupon_data = $active_rpg_item_coupon;
             $apply_this_item_coupon = true;
-            // TODO: Проверка условий RPG купона на товар/категорию
-            if ($apply_this_item_coupon) {
-                $cart_items = $cart->get_cart();
-                if ( ! empty( $cart_items ) ) {
-                    $first_item_key = array_key_first( $cart_items ); 
-                    $_product = $cart_items[$first_item_key]['data'];
-                    $item_price_for_rpg_coupon = (float) $_product->get_price(); 
-                    $coupon_value = (float) $coupon_data['value'];
-                    $discount_amount_for_one_item = ( $item_price_for_rpg_coupon * $coupon_value ) / 100;
-                    if ( $discount_amount_for_one_item > 0 ) {
-                        $discount_amount_for_one_item = min( $discount_amount_for_one_item, $item_price_for_rpg_coupon * $cart_items[$first_item_key]['quantity'] ); 
-                        $cart->add_fee( $coupon_data['description'] ?: (__( 'Скидка по RPG купону на товар', 'woodmart-child' ) . ' (' . $coupon_value . '%)'), - $discount_amount_for_one_item );
-                        $subtotal_after_passive_bonuses -= $discount_amount_for_one_item; 
-                        $subtotal_after_passive_bonuses = max(0, $subtotal_after_passive_bonuses);
+            $matching_item_key = null;
+
+            if ( isset( $coupon_data['product_ids'] ) && is_array( $coupon_data['product_ids'] ) ) {
+                foreach ( $cart->get_cart() as $key => $item ) {
+                    if ( in_array( (int) $item['product_id'], $coupon_data['product_ids'], true ) ) {
+                        $matching_item_key = $key;
+                        break;
                     }
                 }
+                if ( null === $matching_item_key ) {
+                    $apply_this_item_coupon = false;
+                }
+            } elseif ( isset( $coupon_data['categories'] ) && is_array( $coupon_data['categories'] ) ) {
+                foreach ( $cart->get_cart() as $key => $item ) {
+                    if ( has_term( $coupon_data['categories'], 'product_cat', $item['product_id'] ) ) {
+                        $matching_item_key = $key;
+                        break;
+                    }
+                }
+                if ( null === $matching_item_key ) {
+                    $apply_this_item_coupon = false;
+                }
             } else {
-                 if (WC()->session) WC()->session->set('active_item_coupon', null); 
-                 wc_add_notice(sprintf(__('RPG купон "%s" не подходит для товаров в вашей корзине и был деактивирован.', 'woodmart-child'), esc_html($coupon_data['description'] ?: __('на товар', 'woodmart-child'))), 'notice');
+                $cart_items = $cart->get_cart();
+                if ( ! empty( $cart_items ) ) {
+                    $matching_item_key = array_key_first( $cart_items );
+                }
             }
-		}
+
+            if ( $apply_this_item_coupon && null !== $matching_item_key ) {
+                $cart_items   = $cart->get_cart();
+                $_product     = $cart_items[ $matching_item_key ]['data'];
+                $item_price   = (float) $_product->get_price();
+                $coupon_value = (float) $coupon_data['value'];
+                $discount_amount_for_one_item = ( $item_price * $coupon_value ) / 100;
+                if ( $discount_amount_for_one_item > 0 ) {
+                    $discount_amount_for_one_item = min( $discount_amount_for_one_item, $item_price * $cart_items[ $matching_item_key ]['quantity'] );
+                    $cart->add_fee( $coupon_data['description'] ?: ( __( 'Скидка по RPG купону на товар', 'woodmart-child' ) . ' (' . $coupon_value . '%)' ), - $discount_amount_for_one_item );
+                    $subtotal_after_passive_bonuses -= $discount_amount_for_one_item;
+                    $subtotal_after_passive_bonuses = max( 0, $subtotal_after_passive_bonuses );
+                }
+            } else {
+                if ( WC()->session ) {
+                    WC()->session->set( 'active_item_coupon', null );
+                }
+                wc_add_notice( sprintf( __( 'RPG купон "%s" не подходит для товаров в вашей корзине и был деактивирован.', 'woodmart-child' ), esc_html( $coupon_data['description'] ?: __( 'на товар', 'woodmart-child' ) ) ), 'notice' );
+            }
 		if ( $active_rpg_cart_coupon && is_array( $active_rpg_cart_coupon ) && isset( $active_rpg_cart_coupon['value'] ) && $subtotal_after_passive_bonuses > 0 ) {
 			$coupon_value = (float) $active_rpg_cart_coupon['value'];
 			$discount_amount = ( $subtotal_after_passive_bonuses * $coupon_value ) / 100;
