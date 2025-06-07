@@ -54,8 +54,21 @@ $rage_pending      = ( $user_id && 'orc' === $race_slug ) ? (bool) $character->g
 						<th class="product-subtotal"><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></th>
 					</tr>
 				</thead>
-				<tbody>
-				<?php do_action( 'woocommerce_before_cart_contents' ); ?>
+                                <tbody>
+                                <?php do_action( 'woocommerce_before_cart_contents' ); ?>
+                                <?php if ( $elf_sense_pending || $rage_pending ) : ?>
+                                <tr class="rpg-ability-message">
+                                        <td colspan="12">
+                                                <?php
+                                                if ( $elf_sense_pending ) {
+                                                        esc_html_e( 'Выберите товары и подтвердите способность "Чутье".', 'woodmart-child' );
+                                                } elseif ( $rage_pending ) {
+                                                        esc_html_e( 'Выберите товар для способности "Ярость".', 'woodmart-child' );
+                                                }
+                                                ?>
+                                        </td>
+                                </tr>
+                                <?php endif; ?>
 
 			<?php
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {

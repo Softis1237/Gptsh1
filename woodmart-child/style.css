@@ -787,4 +787,9 @@ body.dokan-store .store-content-area .dokan-coupon-content .coupon_container,
 }
 .rpg-elf-sense-actions {
     padding: 10px 0;
-}
+
+.rpg-ability-message {
+    text-align: center;
+    padding: 10px;
+    background: #f7f7f7;
+    font-weight: 600;
