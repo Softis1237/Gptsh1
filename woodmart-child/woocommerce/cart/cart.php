@@ -24,8 +24,15 @@ if ( function_exists( 'wc_wp_theme_get_element_class_name' ) ) {
 }
 
 if ( woodmart_get_opt( 'update_cart_quantity_change' ) ) {
-	$update_cart_btn_classes .= ' wd-hide';
+        $update_cart_btn_classes .= ' wd-hide';
 }
+
+// --- RPG ability states ---
+$character = new \WoodmartChildRPG\RPG\Character();
+$user_id  = get_current_user_id();
+$race_slug = $user_id ? $character->get_race( $user_id ) : '';
+$elf_sense_pending = ( $user_id && 'elf' === $race_slug ) ? (bool) $character->get_meta( $user_id, 'elf_sense_pending' ) : false;
+$rage_pending      = ( $user_id && 'orc' === $race_slug ) ? (bool) $character->get_meta( $user_id, 'rage_pending' ) : false;
 ?>
 
 <div class="cart-content-wrapper">
@@ -103,9 +110,17 @@ if ( woodmart_get_opt( 'update_cart_quantity_change' ) ) {
 										echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
 									}
 
-								do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
+                                                               do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
 
-								// Meta data.
+                                                               if ( $elf_sense_pending ) {
+                                                                       echo '<div class="elf-sense-option"><label><input type="checkbox" name="elf_products[]" value="' . esc_attr( $product_id ) . '" /> ' . esc_html__( 'Выбрать для \"Чутья\"', 'woodmart-child' ) . '</label></div>';
+                                                               }
+
+                                                               if ( $rage_pending ) {
+                                                                       echo '<div class="rage-select-wrapper"><button type="button" class="button select-rage-product" data-product-id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Выбрать для \"Ярости\"', 'woodmart-child' ) . '</button></div>';
+                                                               }
+
+                                                               // Meta data.
 								echo wc_get_formatted_cart_item_data( $cart_item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 								// Backorder notification.
@@ -159,7 +174,17 @@ if ( woodmart_get_opt( 'update_cart_quantity_change' ) ) {
 			}
 			?>
 
-			<?php do_action( 'woocommerce_cart_contents' ); ?>
+                        <?php do_action( 'woocommerce_cart_contents' ); ?>
+
+                        <?php if ( $elf_sense_pending ) : ?>
+                        <tr class="rpg-elf-sense-confirm-row">
+                                <td colspan="12" class="rpg-elf-sense-actions">
+                                        <button type="button" id="confirm-elf-sense" class="button">
+                                                <?php esc_html_e( 'Подтвердить выбор для \"Чутья\"', 'woodmart-child' ); ?>
+                                        </button>
+                                </td>
+                        </tr>
+                        <?php endif; ?>
 
 			<tr class="wd-cart-action-row">
 				<td colspan="12" class="actions">
