@@ -777,3 +777,14 @@ body.dokan-store .store-content-area .dokan-coupon-content .coupon_container,
     padding: 20px;
     color: #9090b0;
 }
+
+/* --- RPG ability selection in cart --- */
+.elf-sense-option {
+    margin-top: 8px;
+}
+.rage-select-wrapper {
+    margin-top: 8px;
+}
+.rpg-elf-sense-actions {
+    padding: 10px 0;
+}
