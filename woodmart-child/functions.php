@@ -27,7 +27,10 @@ if ( ! defined( 'WOODMART_CHILD_RPG_DIR_URI' ) ) {
 // 1. Подключаем автозагрузчик классов.
 $wcrpg_autoloader_path = WOODMART_CHILD_RPG_DIR_PATH . 'includes/autoload.php';
 if ( file_exists( $wcrpg_autoloader_path ) ) {
-	require_once $wcrpg_autoloader_path;
+       require_once $wcrpg_autoloader_path;
+       if ( defined( 'WP_CLI' ) && WP_CLI ) {
+               require_once WOODMART_CHILD_RPG_DIR_PATH . 'includes/CLI/AbilityCheckCommand.php';
+       }
 } else {
 	if ( is_admin() ) {
 		add_action(
