@@ -126,6 +126,7 @@ $rage_pending      = ( $user_id && 'orc' === $race_slug ) ? (bool) $character->g
                                                                do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
 
                                                                if ( $elf_sense_pending ) {
+
                                                                        $aria_label = sprintf( esc_html__( 'Выбрать %s для "Чутья"', 'woodmart-child' ), $_product->get_name() );
                                                                        echo '<div class="elf-sense-option"><label><input type="checkbox" name="elf_products[]" value="' . esc_attr( $product_id ) . '" aria-label="' . esc_attr( $aria_label ) . '" /> ' . esc_html__( 'Выбрать для \"Чутья\"', 'woodmart-child' ) . '</label></div>';
                                                                }
@@ -133,6 +134,13 @@ $rage_pending      = ( $user_id && 'orc' === $race_slug ) ? (bool) $character->g
                                                                if ( $rage_pending ) {
                                                                        $aria_label = sprintf( esc_html__( 'Выбрать %s для "Ярости"', 'woodmart-child' ), $_product->get_name() );
                                                                        echo '<div class="rage-select-wrapper"><button type="button" class="button select-rage-product" data-product-id="' . esc_attr( $product_id ) . '" aria-label="' . esc_attr( $aria_label ) . '">' . esc_html__( 'Выбрать для \"Ярости\"', 'woodmart-child' ) . '</button></div>';
+
+                                                                       echo '<div class="elf-sense-option"><label><input type="checkbox" name="elf_products[]" value="' . esc_attr( $product_id ) . '" /> ' . esc_html__( 'Выбрать для \"Чутья\"', 'woodmart-child' ) . '</label></div>';
+                                                               }
+
+                                                               if ( $rage_pending ) {
+                                                                       echo '<div class="rage-select-wrapper"><button type="button" class="button select-rage-product" data-product-id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Выбрать для \"Ярости\"', 'woodmart-child' ) . '</button></div>';
+
                                                                }
 
                                                                // Meta data.
